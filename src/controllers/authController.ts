@@ -8,7 +8,7 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
-import { BAD_AUTH } from "src/constatns";
+import { BAD_AUTH } from "../constatns";
 
 config()
 

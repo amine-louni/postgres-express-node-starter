@@ -1,5 +1,5 @@
 import AppError from '../helpers/AppError'
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { EXPIRED_TOKEN, INVALID_TOKEN, __prod__ } from '../constatns';
 
 
@@ -69,7 +69,7 @@ const sendErrorProd = (err: any, req: Request, res: Response) => {
     });
 };
 
-export default (err: any, req: Request, res: Response) => {
+export default (err: any, req: Request, res: Response, _next: NextFunction) => {
     // console.log(err.stack);
 
     console.log('global error handler')
@@ -78,7 +78,7 @@ export default (err: any, req: Request, res: Response) => {
 
     if (!__prod__) {
         sendErrorDev(err, req, res);
-    } else if (__prod__) {
+    } else {
         let error = { ...err };
         error.message = err.message;
 

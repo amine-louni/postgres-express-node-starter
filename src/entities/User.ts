@@ -25,21 +25,21 @@ export class User extends BaseEntity {
     @Column('varchar')
     first_name: string;
 
-    @Length(2, 20)
     @Column('varchar')
+    @Length(2, 20)
     last_name: string;
 
 
-    @Length(4, 10)
+    @Column()
+    @Length(5, 20)
+    user_name: string;
+
+
     @Column({
         type: 'varchar',
         unique: true,
     })
-    user_name: string;
-
-
     @IsEmail()
-    @Column('varchar')
     email: string;
 
     @IsPhoneNumber()

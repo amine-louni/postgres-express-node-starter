@@ -8,7 +8,9 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
-import { BAD_AUTH } from "../constatns";
+import { BAD_AUTH, VALIDATION_FAILED } from "../constatns";
+import { validate } from "class-validator";
+import formatValidationErrors from "../helpers/formatValidationErrors";
 
 config()
 
@@ -47,9 +49,7 @@ const createSendToken = async (user: any, status: number, req: Request, res: Res
 
 // @ Todo
 // Send verification email 
-export const register = cathAsync(async (req, res) => {
-
-
+export const register = cathAsync(async (req, res, next) => {
     const {
         first_name,
         last_name,
@@ -59,6 +59,8 @@ export const register = cathAsync(async (req, res) => {
         password
     } = req.body
 
+    // validate 
+
     // create user 
     const newUser = await User.create({
         first_name,
@@ -67,11 +69,19 @@ export const register = cathAsync(async (req, res) => {
         email,
         dob,
         password
-    }).save();
+    })
 
+    const errors = await validate(newUser);
+    if (errors.length > 0) {
 
-
+        next(new AppError('validationFailed', 400, VALIDATION_FAILED, formatValidationErrors(errors)))
+        return;
+    }
+    await newUser.save();
     createSendToken(newUser, 201, req, res);
+    return;
+
+
 });
 
 export const login = cathAsync(async (req, res, next) => {

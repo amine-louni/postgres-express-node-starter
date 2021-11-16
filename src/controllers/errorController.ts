@@ -1,6 +1,7 @@
 import AppError from '../helpers/AppError'
 import { NextFunction, Request, Response } from "express";
 import { EXPIRED_TOKEN, INVALID_TOKEN, __prod__ } from '../constatns';
+import { ValidationError } from 'class-validator';
 
 
 
@@ -10,6 +11,14 @@ const handleJWTError = () =>
 
 const handleJWTExpiredError = () =>
     new AppError('Your token has expired! Please log in again.', 401, EXPIRED_TOKEN);
+
+
+const handleDbValidation = (err: any) => {
+    return new AppError(err.detail, 400, err.routine);
+}
+
+
+
 
 const sendErrorDev = (err: any, req: Request, res: Response) => {
 
@@ -33,7 +42,7 @@ const sendErrorProd = (err: any, req: Request, res: Response) => {
     // A) API
     if (req.originalUrl.startsWith('/api')) {
         // A) Operational, trusted error: send message to client
-        if (err.isOperational) {
+        if (err?.isOperational) {
             return res.status(err.statusCode).json({
                 status: err.status,
                 code: err.code,
@@ -50,14 +59,6 @@ const sendErrorProd = (err: any, req: Request, res: Response) => {
         });
     }
 
-    // B) RENDERED WEBSITE
-    // A) Operational, trusted error: send message to client
-    if (err.isOperational) {
-        return res.status(err.statusCode).render('error', {
-            title: 'Something went wrong!',
-            msg: err.message,
-        });
-    }
     // B) Programming or other unknown error: don't leak error details
     // 1) Log error
     console.error('ERROR 💥', err);
@@ -69,9 +70,6 @@ const sendErrorProd = (err: any, req: Request, res: Response) => {
 };
 
 export default (err: any, req: Request, res: Response, _next: NextFunction) => {
-    // console.log(err.stack);
-
-
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
@@ -83,10 +81,9 @@ export default (err: any, req: Request, res: Response, _next: NextFunction) => {
         error.message = err.message;
 
 
-
-
-        if (error.name === 'JsonWebTokenError') error = handleJWTError();
-        if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+        if (error?.query) error = handleDbValidation(err)
+        if (error?.name === 'JsonWebTokenError') error = handleJWTError();
+        if (error?.name === 'TokenExpiredError') error = handleJWTExpiredError();
 
         sendErrorProd(error, req, res);
     }

@@ -42,7 +42,7 @@ export class User extends BaseEntity {
     @IsEmail()
     email: string;
 
-    @IsPhoneNumber()
+
     @Column({
         type: 'varchar',
         nullable: true,

@@ -4,8 +4,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import userRoutes from './routes/userRoutes'
-import { __prod__ } from './constatns';
+import { NOT_FOUND, __prod__ } from './constatns';
 import AppError from './helpers/AppError'
+import errorController from './controllers/errorController'
 
 
 
@@ -47,11 +48,11 @@ app.use('/api/v1/users', userRoutes);
 //Error Handling (if the route is not  of the previous ones (not found))
 app.all('*', (req, _res, next) => {
     // Passing The error to the globalError Handler
-    next(new AppError(`can not find ${req.originalUrl} on this server`, 404));
+    next(new AppError(`can not find ${req.originalUrl} on this server`, 404, NOT_FOUND));
 });
 
 // @Todoo Global error handling
-
+app.use(errorController)
 
 
 export default app;

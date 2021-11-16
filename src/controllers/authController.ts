@@ -8,6 +8,7 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
+import { BAD_AUTH } from "src/constatns";
 
 config()
 
@@ -78,18 +79,16 @@ export const login = cathAsync(async (req, res, next) => {
 
     // 1 ) Check if email & password inputs exists
     if (!password || !email) {
-        return next(new AppError('bad_input', 400));
+        return next(new AppError('wrong login credeintials', 400, BAD_AUTH));
     }
 
     // 2 ) Check if user & password exits
 
     const user = await User.findOne({ email });
 
-    if (user) {
-        console.log(password)
-    }
+
     if (!user || !(await crypt.compare(password, user?.password))) {
-        return next(new AppError('bad_auth', 401));
+        return next(new AppError('wrong login credeintials', 401, BAD_AUTH));
     }
 
     // 3 ) Every thing is okay !

@@ -6,6 +6,8 @@ import { cathAsync } from '../helpers/catchAsync';
 import { User } from '../entities/User';
 
 import { config } from 'dotenv'
+import crypt from 'bcryptjs'
+import AppError from "../helpers/AppError";
 
 config()
 
@@ -69,4 +71,27 @@ export const register = cathAsync(async (req, res) => {
 
 
     createSendToken(newUser, 201, req, res);
+});
+
+export const login = cathAsync(async (req, res, next) => {
+    const { email, password } = req.body;
+
+    // 1 ) Check if email & password inputs exists
+    if (!password || !email) {
+        return next(new AppError('bad_input', 400));
+    }
+
+    // 2 ) Check if user & password exits
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+        console.log(password)
+    }
+    if (!user || !(await crypt.compare(password, user?.password))) {
+        return next(new AppError('bad_auth', 401));
+    }
+
+    // 3 ) Every thing is okay !
+    createSendToken(user, 200, req, res);
 });

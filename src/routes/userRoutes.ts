@@ -1,5 +1,5 @@
 const express = require('express');
-import { register } from '../controllers/AuthController'
+import { login, register } from '../controllers/authController'
 
 
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 
 
 router.post('/register', register);
+router.post('/login', login);
 
 
 

@@ -8,6 +8,7 @@ export interface IUser {
     phone_number: string | null;
     email_verified_at: Date | null;
     bio: string | null;
+    password: string;
     id_verified_at: Date | null;
     password_changed_at: Date | null;
     paasword_reset_token: Date | null;

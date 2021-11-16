@@ -102,7 +102,4 @@ export class User extends BaseEntity {
     })
     paasword_reset_token: Date;
 
-
-
-
 }

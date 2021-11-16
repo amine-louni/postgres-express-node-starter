@@ -16,9 +16,7 @@ const sendErrorDev = (err: any, req: Request, res: Response) => {
     // A) API 
     if (req.originalUrl.startsWith('/api')) {
         return res.status(err.statusCode).json({
-            status: err.status,
-            error: err,
-            message: err.message,
+            ...err,
             stack: err.stack,
         });
     }
@@ -38,6 +36,7 @@ const sendErrorProd = (err: any, req: Request, res: Response) => {
         if (err.isOperational) {
             return res.status(err.statusCode).json({
                 status: err.status,
+                code: err.code,
                 message: err.message,
             });
         }
@@ -72,9 +71,10 @@ const sendErrorProd = (err: any, req: Request, res: Response) => {
 export default (err: any, req: Request, res: Response, _next: NextFunction) => {
     // console.log(err.stack);
 
-    console.log('global error handler')
+
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
+
 
     if (!__prod__) {
         sendErrorDev(err, req, res);

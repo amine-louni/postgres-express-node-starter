@@ -1,5 +1,5 @@
 import { IsEmail, IsPhoneNumber, Length } from "class-validator";
-import { AfterInsert, BaseEntity, BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import crypt from "bcryptjs";
 import { config } from 'dotenv'
 

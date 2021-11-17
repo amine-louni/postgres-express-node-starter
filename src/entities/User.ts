@@ -6,7 +6,13 @@ import { config } from 'dotenv'
 
 config();
 
-
+/**
+ * TODO:
+ * 
+ * User entity should generate random token and asign it to paasword_reset_token
+ * when the user try to reset his password
+ * 
+ */
 @Entity('users')
 export class User extends BaseEntity {
 

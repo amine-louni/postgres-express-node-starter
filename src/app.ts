@@ -7,13 +7,15 @@ import userRoutes from './routes/userRoutes'
 import { NOT_FOUND, __prod__ } from './constatns';
 import AppError from './helpers/AppError'
 import errorController from './controllers/errorController'
+import path from 'path';
 
 
 
 const app = express();
 
 // Get the Auth service for the default app
-
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, '../views'));
 app.enable('trust proxy');
 
 //GLOBALS MIDDLEWARES

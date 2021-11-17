@@ -11,6 +11,7 @@ import AppError from "../helpers/AppError";
 import { BAD_AUTH, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
+import EmailSender from "../helpers/EmailSender";
 
 config()
 
@@ -78,6 +79,15 @@ export const register = cathAsync(async (req, res, next) => {
         return;
     }
     await newUser.save();
+    const url = `${req.protocol}://${req.get('host')}/me`;
+
+    try {
+        await new EmailSender(newUser, url).sendWelcome();
+
+    } catch (e) {
+        console.log('error whiel sending emial')
+        console.error(e)
+    }
     createSendToken(newUser, 201, req, res);
     return;
 
@@ -94,13 +104,14 @@ export const login = cathAsync(async (req, res, next) => {
 
     // 2 ) Check if user & password exits
 
-    const user = await User.findOne({ email });
+    const newUser = await User.findOne({ email });
 
 
-    if (!user || !(await crypt.compare(password, user?.password))) {
+    if (!newUser || !(await crypt.compare(password, newUser?.password))) {
         return next(new AppError('wrong login credeintials', 401, BAD_AUTH));
     }
 
+
     // 3 ) Every thing is okay !
-    createSendToken(user, 200, req, res);
+    createSendToken(newUser, 200, req, res);
 });

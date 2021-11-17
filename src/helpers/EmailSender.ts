@@ -1,10 +1,10 @@
-
 import nodemailer from 'nodemailer';
 import pug from 'pug';
 import mg from 'nodemailer-mailgun-transport';
 import htmlToText from 'html-to-text';
 import { IUser } from "src/@types/user";
 import { __prod__ } from "../constatns";
+
 
 export default class EmailSender {
     to: string;
@@ -19,7 +19,7 @@ export default class EmailSender {
     }
 
     newTransport() {
-        if (!__prod__) {
+        if (__prod__) {
             return nodemailer.createTransport(mg({
                 auth: {
                     api_key: process.env.MAILGUN_PRIVATE_API_KEY,
@@ -32,11 +32,12 @@ export default class EmailSender {
 
         // Mailtrap
         return nodemailer.createTransport({
-            //  host: process.env.EMAIL_HOST,
-            // port: process.env.EMAIL_PORT,
+            host: process.env.MAILTRAP_HOST,
+            port: process.env.MAILTRAP_PORT,
+
             auth: {
-                user: process.env.EMAIL_USERNAME,
-                pass: process.env.EMAIL_PASSWORD
+                user: process.env.MAILTRAP_USERNAME,
+                pass: process.env.MAILTRAP_PASSWORD
             }
 
         });

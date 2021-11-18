@@ -9,7 +9,7 @@ config();
 /**
  * TODO:
  * 
- * User entity should generate random token and asign it to paasword_reset_token
+ * User entity should generate random token and pin and asign it to paasword_reset_[token | pin]
  * when the user try to reset his password
  * 
  */

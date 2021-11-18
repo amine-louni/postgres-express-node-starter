@@ -96,16 +96,22 @@ export class User extends BaseEntity {
 
 
     @Column({
-        type: "varchar",
+        type: "date",
         nullable: true,
     })
     password_changed_at: Date;
 
 
     @Column({
-        type: 'date',
+        type: 'varchar',
         nullable: true
     })
-    paasword_reset_token: Date;
+    paasword_reset_token: string;
+
+    @Column({
+        type: 'varchar',
+        nullable: true
+    })
+    paasword_reset_pin: string;
 
 }

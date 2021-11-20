@@ -63,13 +63,15 @@ export class User extends BaseEntity {
 
     @Column({
         type: 'varchar',
-        nullable: true
+        nullable: true,
+        select: false
     })
     email_validation_pin: string;
 
     @Column({
         type: 'timestamptz',
-        nullable: true
+        nullable: true,
+        select: false,
     })
     email_validation_pin_expires_at: Date;
 
@@ -91,6 +93,7 @@ export class User extends BaseEntity {
     @Column({
         type: "boolean",
         default: true,
+        select: false
     })
     is_active: boolean;
 
@@ -108,26 +111,32 @@ export class User extends BaseEntity {
     profile_picture_url: string;
 
 
-    @Column('varchar')
+    @Column({
+        type: 'varchar',
+        select: false
+    })
     password: string;
 
 
     @Column({
         type: 'timestamptz',
         nullable: true,
+        select: false
     })
     password_changed_at: Date;
 
 
     @Column({
         type: 'varchar',
-        nullable: true
+        nullable: true,
+        select: false
     })
     paasword_reset_token: string;
 
     @Column({
         type: 'varchar',
-        nullable: true
+        nullable: true,
+        select: false
     })
     paasword_reset_pin: string;
 

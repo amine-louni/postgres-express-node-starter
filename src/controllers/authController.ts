@@ -11,7 +11,7 @@ import AppError from "../helpers/AppError";
 import { BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
-import EmailSender from "../helpers/EmailSender";
+
 
 config()
 

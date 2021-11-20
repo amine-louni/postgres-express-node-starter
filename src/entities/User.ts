@@ -1,7 +1,9 @@
 import { IsEmail, Length } from "class-validator";
 import { BaseEntity, BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import crypt from "bcryptjs";
+import crypto from "crypto";
 import { config } from 'dotenv'
+import { EMAIL_VALIDATION_EXPIRATION_IN_MINUTES } from "../constatns";
 
 
 config();
@@ -17,9 +19,10 @@ config();
 export class User extends BaseEntity {
 
     @BeforeInsert()
-    async hash_password() {
-        console.log(this.password, 'run  hook')
+    async on_register() {
         this.password = await crypt.hash(this.password, 12);
+        this.email_validation_pin = await crypt.hash(crypto.randomBytes(4).toString('hex'), 12);
+        this.email_validation_pin_expires_at = new Date(new Date().getTime() + EMAIL_VALIDATION_EXPIRATION_IN_MINUTES * 60000);
     }
 
 
@@ -60,7 +63,7 @@ export class User extends BaseEntity {
 
 
     @Column({
-        type: 'date',
+        type: 'timestamptz',
         nullable: true
     })
     email_verified_at: Date;
@@ -78,7 +81,7 @@ export class User extends BaseEntity {
     is_active: boolean;
 
     @Column({
-        type: 'date',
+        type: 'timestamptz',
         nullable: true,
     })
     id_verified_at: Date;
@@ -96,7 +99,7 @@ export class User extends BaseEntity {
 
 
     @Column({
-        type: "date",
+        type: 'timestamptz',
         nullable: true,
     })
     password_changed_at: Date;
@@ -113,5 +116,17 @@ export class User extends BaseEntity {
         nullable: true
     })
     paasword_reset_pin: string;
+
+    @Column({
+        type: 'varchar',
+        nullable: true
+    })
+    email_validation_pin: string;
+
+    @Column({
+        type: 'timestamptz',
+        nullable: true
+    })
+    email_validation_pin_expires_at: Date;
 
 }

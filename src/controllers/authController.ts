@@ -79,10 +79,10 @@ export const register = cathAsync(async (req, res, next) => {
         return;
     }
     await newUser.save();
-    const url = `${req.protocol}://${req.get('host')}/me`;
+    // const url = `${req.protocol}://${req.get('host')}/me`;
 
     try {
-        await new EmailSender(newUser, url).sendWelcome();
+        await new EmailSender(newUser, '', '1342').sendValidationEmail();
 
     } catch (e) {
         console.log('error whiel sending emial')

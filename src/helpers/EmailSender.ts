@@ -11,11 +11,13 @@ export default class EmailSender {
     firstName: string;
     url: string;
     from: string;
-    constructor(user: IUser, url: string) {
+    pin?: string;
+    constructor(user: IUser, url: string, pin?: string) {
         this.to = user.email;
         this.firstName = user.first_name;
         this.url = url;
         this.from = `"Amine Louni" <${process.env.EMAIL_FROM}>`;
+        this.pin = pin;
     }
 
     newTransport() {
@@ -45,12 +47,12 @@ export default class EmailSender {
 
     // Send the actual email
     async send(template: string, subject: string) {
-        console.log(`${__dirname}/../../views/email/${template}.pug`, 'dir name---')
         // 1) Render HTML based on a pug template
         const html = pug.renderFile(`${__dirname}/../../views/email/${template}.pug`, {
             firstName: this.firstName,
             url: this.url,
-            subject
+            subject,
+            pin: this.pin
         });
 
         // 2) Define email options
@@ -69,7 +71,12 @@ export default class EmailSender {
     async sendWelcome() {
         await this.send('welcome', 'Welcome to the LiYelp Family!');
     }
-
+    async sendValidationEmail() {
+        await this.send(
+            'emailValidation',
+            'Your password reset token (valid for only 10 minutes)'
+        );
+    }
     async sendPasswordReset() {
         await this.send(
             'passwordReset',

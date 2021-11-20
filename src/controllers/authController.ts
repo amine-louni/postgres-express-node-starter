@@ -8,12 +8,15 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
-import { BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
+import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
 
 
 config()
+
+
+
 
 const singingToken = (id: string): string => {
     return jwt.sign(
@@ -27,7 +30,7 @@ const singingToken = (id: string): string => {
 
 const createSendToken = async (user: any, status: number, req: Request, res: Response) => {
 
-    const token = singingToken(user.id);
+    const token = singingToken(user.uuid);
     res.cookie('jwt', token, {
         expires: new Date(
             Date.now() + process.env.JWT_COOKIE_EXPIRED_IN * 24 * 60 * 60 * 1000
@@ -43,7 +46,7 @@ const createSendToken = async (user: any, status: number, req: Request, res: Res
         status: 'success',
         token,
         data: {
-            user,
+            ...user,
         },
     });
 };
@@ -100,16 +103,23 @@ export const login = cathAsync(async (req, res, next) => {
 
     // 2 ) Check if user & password exits
 
-    const newUser = await User.findOne({ email });
+    const theUser = await User.findOne({
+        select: [...ALLOWED_USER_FIELDS, 'password'],
+        where: {
+            email: email
+        },
 
 
-    if (!newUser || !(await crypt.compare(password, newUser?.password))) {
+    });
+
+
+    if (!theUser || !(await crypt.compare(password, theUser?.password))) {
         return next(new AppError('wrong login credeintials', 401, BAD_AUTH));
     }
 
 
     // 3 ) Every thing is okay !
-    createSendToken(newUser, 200, req, res);
+    createSendToken(theUser, 200, req, res);
 });
 
 

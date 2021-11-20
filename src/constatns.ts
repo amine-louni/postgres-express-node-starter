@@ -6,6 +6,22 @@ export const __prod__ = process.env.NODE_ENV === 'production';
 
 export const EMAIL_VALIDATION_EXPIRATION_IN_MINUTES = 10
 
+
+export const ALLOWED_USER_FIELDS = [
+    'uuid',
+    'first_name',
+    'last_name',
+    'user_name',
+    'email',
+    'dob',
+    'phone_number',
+    'email_validate_at',
+    'bio',
+    'id_verified_at',
+    'is_active',
+    'profile_picture_url',
+] as const;
+
 // code erros
 export const BAD_AUTH = 'bad_auth';
 export const BAD_INPUT = 'bad_input';

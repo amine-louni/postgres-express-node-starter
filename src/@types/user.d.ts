@@ -6,7 +6,7 @@ export interface IUser {
     email: string;
     dob: Date;
     phone_number: string | null;
-    email_verified_at: Date | null;
+    email_validate_at: Date | null;
     bio: string | null;
     password: string;
     id_verified_at: Date | null;

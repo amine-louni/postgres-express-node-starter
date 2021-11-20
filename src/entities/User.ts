@@ -4,6 +4,7 @@ import crypt from "bcryptjs";
 import crypto from "crypto";
 import { config } from 'dotenv'
 import { EMAIL_VALIDATION_EXPIRATION_IN_MINUTES } from "../constatns";
+import EmailSender from "../helpers/EmailSender";
 
 
 config();
@@ -21,8 +22,10 @@ export class User extends BaseEntity {
     @BeforeInsert()
     async on_register() {
         this.password = await crypt.hash(this.password, 12);
-        this.email_validation_pin = await crypt.hash(crypto.randomBytes(4).toString('hex'), 12);
+        const pin = crypto.randomBytes(4).toString('hex')
+        this.email_validation_pin = await crypt.hash(pin, 12);
         this.email_validation_pin_expires_at = new Date(new Date().getTime() + EMAIL_VALIDATION_EXPIRATION_IN_MINUTES * 60000);
+        await new EmailSender(this, '', pin).sendValidationEmail();
     }
 
 
@@ -30,6 +33,7 @@ export class User extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     uuid: string;
 
+    // required fields
     @Length(2, 20)
     @Column('varchar')
     first_name: string;
@@ -43,7 +47,7 @@ export class User extends BaseEntity {
     @Length(5, 20)
     user_name: string;
 
-
+    // Email fields
     @Column({
         type: 'varchar',
         unique: true,
@@ -51,6 +55,23 @@ export class User extends BaseEntity {
     @IsEmail()
     email: string;
 
+    @Column({
+        type: 'timestamptz',
+        nullable: true
+    })
+    email_validate_at: Date;
+
+    @Column({
+        type: 'varchar',
+        nullable: true
+    })
+    email_validation_pin: string;
+
+    @Column({
+        type: 'timestamptz',
+        nullable: true
+    })
+    email_validation_pin_expires_at: Date;
 
     @Column({
         type: 'varchar',
@@ -60,13 +81,6 @@ export class User extends BaseEntity {
 
     @Column('date')
     dob: Date;
-
-
-    @Column({
-        type: 'timestamptz',
-        nullable: true
-    })
-    email_verified_at: Date;
 
     @Column({
         type: 'text',
@@ -117,16 +131,6 @@ export class User extends BaseEntity {
     })
     paasword_reset_pin: string;
 
-    @Column({
-        type: 'varchar',
-        nullable: true
-    })
-    email_validation_pin: string;
 
-    @Column({
-        type: 'timestamptz',
-        nullable: true
-    })
-    email_validation_pin_expires_at: Date;
 
 }

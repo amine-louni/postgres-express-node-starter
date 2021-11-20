@@ -8,7 +8,7 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
-import { BAD_AUTH, VALIDATION_FAILED } from "../constatns";
+import { BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
 import EmailSender from "../helpers/EmailSender";
@@ -83,13 +83,7 @@ export const register = cathAsync(async (req, res, next) => {
 
 
 
-    try {
-        await new EmailSender(newUser, '', '1342').sendValidationEmail();
 
-    } catch (e) {
-        console.log('error whiel sending emial')
-        console.error(e)
-    }
     createSendToken(newUser, 201, req, res);
     return;
 
@@ -117,3 +111,59 @@ export const login = cathAsync(async (req, res, next) => {
     // 3 ) Every thing is okay !
     createSendToken(newUser, 200, req, res);
 });
+
+
+export const validateEmail = cathAsync(async (req, res, next) => {
+    const { pin, user_name } = req.body;
+
+
+    // 1 ) Check if email & password inputs exists
+    if (!pin || !user_name) {
+        return next(new AppError('wrong validation pin', 422, BAD_INPUT));
+    }
+
+
+    // 2 ) Check if user exits
+    const theUser = await User.findOne({ user_name });
+
+
+    // 5 )  Check if the user is not email validated yet
+    console.log(theUser)
+    console.log(theUser?.email_validate_at)
+    if (theUser?.email_validate_at) {
+        return next(new AppError('wrong validation pin', 422, EMAIL_ALREADY_VALIDATED));
+    }
+
+    // 4 ) Check the correctness
+    if (!theUser || !(await crypt.compare(pin, theUser?.email_validation_pin))) {
+        return next(new AppError('wrong validation pin', 422, BAD_INPUT));
+
+    }
+
+
+    // 4 ) Check if the pin still valid ⏲️
+
+    if (new Date() > theUser.email_validation_pin_expires_at) {
+        console.log('passed')
+        return next(new AppError('validation key expired', 422, VALIDATION_EMAIL_PIN_EXPIRED));
+
+    }
+
+    // return res.json({
+    //     status: 'testign yo'
+    // })
+    //  3 )  validate the email 👌
+
+    const updatedUser = User.update(theUser.uuid, {
+        email_validation_pin: undefined,
+        email_validation_pin_expires_at: undefined,
+        email_validate_at: new Date()
+
+    })
+
+
+    res.status(201).json({
+        user: updatedUser
+    })
+
+})

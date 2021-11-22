@@ -102,10 +102,11 @@ export const register = cathAsync(async (req, res, next) => {
 });
 
 export const login = cathAsync(async (req, res, next) => {
-    const { email, password } = req.body;
+    const { email, password, user_name } = req.body;
 
     // 1 ) Check if email & password inputs exists
-    if (!password || !email) {
+
+    if (!password || !(email || user_name)) {
         return next(new AppError('wrong login credeintials', 400, BAD_AUTH));
     }
 
@@ -114,7 +115,10 @@ export const login = cathAsync(async (req, res, next) => {
     const theUser = await User.findOne({
         select: [...ALLOWED_USER_FIELDS, 'password'],
         where: {
-            email: email
+            ...(user_name && { user_name: user_name }),
+            ...(email && { email: email }),
+
+
         },
 
 

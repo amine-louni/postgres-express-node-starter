@@ -45,6 +45,17 @@ export const FORBIDDEN_USER_FIELDS_TO_UPDATE = [
     'is_active'
 ] as const;
 
+
+export const ALLOWED_USER_FIELDS_TO_UPDATE = [
+    'first_name',
+    'last_name',
+    'user_name',
+    'dob',
+    'phone_number',
+    'bio',
+    'profile_picture_url',
+] as const;
+
 // code erros
 export const BAD_AUTH = 'bad_auth';
 export const BAD_INPUT = 'bad_input';

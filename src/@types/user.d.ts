@@ -1,4 +1,4 @@
-import { SECRET_USER_FIELDS } from "../constatns";
+import { SECRET_USER_FIELDS, ALLOWED_USER_FIELDS_TO_UPDATE } from "../constatns";
 
 export interface IUser {
     uuid: string;
@@ -24,3 +24,5 @@ export interface IUser {
 }
 
 type secretUserFields = typeof SECRET_USER_FIELDS[number];
+
+type forbiddendUserFieldsToUpdate = typeof FORBIDDEN_USER_FIELDS_TO_UPDATE[number];

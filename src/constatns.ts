@@ -36,6 +36,15 @@ export const SECRET_USER_FIELDS = [
     'email_validation_pin_expires_at',
 ] as const;
 
+
+
+export const FORBIDDEN_USER_FIELDS_TO_UPDATE = [
+
+    ...SECRET_USER_FIELDS,
+    'email',
+    'is_active'
+] as const;
+
 // code erros
 export const BAD_AUTH = 'bad_auth';
 export const BAD_INPUT = 'bad_input';

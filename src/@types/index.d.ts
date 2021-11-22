@@ -3,7 +3,7 @@ import { IUser } from './user';
 
 declare module 'express' {
     interface Request {
-        user?: IUser;
+        currentUser?: IUser;
         requestedTime?: string;
     }
 }

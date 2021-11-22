@@ -1,7 +1,7 @@
 
 import express, { Router } from 'express';
-import { forgotPassword, login, register, resetPassword, validateEmail } from '../controllers/authController'
-import { getUser } from '../controllers/userController';
+import { forgotPassword, login, protect, register, resetPassword, validateEmail } from '../controllers/authController'
+import { getUser, updateMe } from '../controllers/userController';
 
 
 const router: Router = express.Router();
@@ -19,6 +19,7 @@ router.patch('/auth/reset-password', resetPassword);
 // User data
 
 router.get('/:uuid', getUser)
+router.patch('/update-me', protect, updateMe)
 
 
 

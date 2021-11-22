@@ -1,6 +1,8 @@
 
 import { Request, Response } from "express";
 import jwt from 'jsonwebtoken'
+import jwt_decode from "jwt-decode";
+
 
 import { cathAsync } from '../helpers/catchAsync';
 import { User } from '../entities/User';
@@ -11,6 +13,7 @@ import AppError from "../helpers/AppError";
 import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, NOT_FOUND, PASSWORD_RESET_PIN_EXPIRED, SECRET_USER_FIELDS, SERVER_ERROR, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
+import changedPasswordAfter from "../helpers/changedPasswordAfter";
 
 
 
@@ -55,6 +58,10 @@ const createSendToken = async (user: User, status: number, req: Request, res: Re
         },
     });
 };
+
+
+
+
 
 // @ Todo
 // Send verification email 
@@ -189,7 +196,6 @@ export const validateEmail = cathAsync(async (req, res, next) => {
 })
 
 
-
 export const forgotPassword = cathAsync(async (req, res, next) => {
     // 1) Get user based on POSTed email
     const theUser = await User.findOne({ email: req.body.email });
@@ -272,4 +278,51 @@ export const resetPassword = cathAsync(async (req, res, next) => {
 
 
 
+});
+
+export const protect = cathAsync(async (req, _res, next) => {
+    // 1) Getting token and check of it's there
+    let token;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
+        token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
+    }
+
+    if (!token) {
+        return next(
+            new AppError('you are not logged in! Please log in to get access.', 401, BAD_AUTH)
+        );
+    }
+
+    // 2) Verification token
+    var decoded = jwt_decode<{ id: string, iat: number, exp: number }>(token);
+
+    // 3) Check if user still exists
+    const currentUser = await User.findOne({ uuid: decoded.id });
+
+    if (!currentUser) {
+        return next(
+            new AppError(
+                'the user belonging to this token does no longer exist.',
+                401,
+                BAD_AUTH
+            )
+        );
+    }
+
+    // 4) Check if user changed password after the token was issued
+    if (changedPasswordAfter(decoded.iat, currentUser.password_changed_at)) {
+        return next(
+            new AppError('user recently changed password! Please log in again.', 401, BAD_AUTH)
+        );
+    }
+
+    // GRANT ACCESS TO PROTECTED ROUTE
+    req.currentUser = currentUser;
+
+    next();
 });

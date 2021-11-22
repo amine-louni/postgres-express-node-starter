@@ -1,5 +1,5 @@
 import { IsEmail, Length } from "class-validator";
-import { BaseEntity, BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { AfterInsert, BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import crypt from "bcryptjs";
 import crypto from "crypto";
 import { config } from 'dotenv'
@@ -7,25 +7,26 @@ import { EMAIL_VALIDATION_EXPIRATION_IN_MINUTES } from "../constatns";
 import EmailSender from "../helpers/EmailSender";
 
 
+
 config();
 
 /**
  * TODO:
  * 
- * User entity should generate random token and pin and asign it to paasword_reset_[token | pin]
+ * User entity should generate random token and pin and asign it to password_reset_[token | pin]
  * when the user try to reset his password
  * 
  */
 @Entity('users')
 export class User extends BaseEntity {
 
-    @BeforeInsert()
+    @AfterInsert()
     async on_register() {
         this.password = await crypt.hash(this.password, 12);
-        const pin = crypto.randomBytes(4).toString('hex')
+        const pin = crypto.randomBytes(4).toString('hex');
         this.email_validation_pin = await crypt.hash(pin, 12);
-        this.email_validation_pin_expires_at = new Date(new Date().getTime() + EMAIL_VALIDATION_EXPIRATION_IN_MINUTES * 60000);
-        await new EmailSender(this, '', pin).sendValidationEmail();
+        this.email_validation_pin_expires_at = await new Date(new Date().getTime() + EMAIL_VALIDATION_EXPIRATION_IN_MINUTES * 60000);
+        new EmailSender(this, '', pin).sendValidationEmail();
     }
 
 
@@ -61,6 +62,12 @@ export class User extends BaseEntity {
     })
     email_validate_at: Date;
 
+
+    @Column({
+        type: 'varchar',
+        select: false
+    })
+    password: string;
     @Column({
         type: 'varchar',
         nullable: true,
@@ -93,7 +100,7 @@ export class User extends BaseEntity {
     @Column({
         type: "boolean",
         default: true,
-        select: false
+
     })
     is_active: boolean;
 
@@ -111,11 +118,7 @@ export class User extends BaseEntity {
     profile_picture_url: string;
 
 
-    @Column({
-        type: 'varchar',
-        select: false
-    })
-    password: string;
+
 
 
     @Column({
@@ -131,14 +134,23 @@ export class User extends BaseEntity {
         nullable: true,
         select: false
     })
-    paasword_reset_token: string;
+    password_reset_token: string;
 
     @Column({
         type: 'varchar',
         nullable: true,
         select: false
     })
-    paasword_reset_pin: string;
+    password_reset_pin: string;
+
+
+
+    @CreateDateColumn()
+    created_at: Date;
+
+
+    @UpdateDateColumn({ select: false })
+    updated_at: Date;
 
 
 

@@ -8,9 +8,10 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
-import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
+import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, SECRET_USER_FIELDS, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
+import { IUser } from "src/@types/user";
 
 
 config()
@@ -28,7 +29,7 @@ const singingToken = (id: string): string => {
     );
 };
 
-const createSendToken = async (user: any, status: number, req: Request, res: Response) => {
+const createSendToken = async (user: IUser, status: number, req: Request, res: Response) => {
 
     const token = singingToken(user.uuid);
     res.cookie('jwt', token, {
@@ -39,8 +40,11 @@ const createSendToken = async (user: any, status: number, req: Request, res: Res
         httpOnly: true,
     });
 
-    // just remove password from the response
-    user.password = undefined;
+    // remove sensetive data
+    SECRET_USER_FIELDS.forEach((secretField) => {
+        user[secretField] = undefined;
+    })
+
 
     res.status(status).json({
         status: 'success',
@@ -73,6 +77,8 @@ export const register = cathAsync(async (req, res, next) => {
         email,
         dob,
         password
+
+
     })
 
     const errors = await validate(newUser);
@@ -83,6 +89,8 @@ export const register = cathAsync(async (req, res, next) => {
     }
     await newUser.save();
     // const url = `${req.protocol}://${req.get('host')}/me`;
+
+
 
 
 

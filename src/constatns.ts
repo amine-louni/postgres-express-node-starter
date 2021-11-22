@@ -22,6 +22,17 @@ export const ALLOWED_USER_FIELDS = [
     'profile_picture_url',
 ] as const;
 
+export const SECRET_USER_FIELDS = [
+    'password',
+    'password_changed_at',
+    'password_reset_token',
+    'password_reset_pin',
+
+    'email_validate_at',
+    'email_validation_pin',
+    'email_validation_pin_expires_at',
+] as const;
+
 // code erros
 export const BAD_AUTH = 'bad_auth';
 export const BAD_INPUT = 'bad_input';

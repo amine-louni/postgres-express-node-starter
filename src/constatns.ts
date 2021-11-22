@@ -44,6 +44,7 @@ export const INVALID_TOKEN = 'invalid_token';
 export const EXPIRED_TOKEN = 'expired_token';
 export const VALIDATION_FAILED = 'validation_failed';
 export const VALIDATION_EMAIL_PIN_EXPIRED = 'validation_email_pin_expired';
+export const PASSWORD_RESET_PIN_EXPIRED = 'password_reset_pin_expired';
 export const EMAIL_ALREADY_VALIDATED = 'email_already_validated';
 export const SERVER_ERROR = 'server_error';
 

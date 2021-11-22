@@ -168,6 +168,7 @@ export class User extends BaseEntity {
             const pin = crypto.randomBytes(4).toString('hex');
             this.password_reset_pin = await crypt.hash(pin, 12);
             this.password_reset_pin_expires_at = await new Date(new Date().getTime() + PASSWORD_PIN_EXPIRATION_IN_MINUTES * 60000);
+            this.save();
             new EmailSender(this, '', pin).sendPasswordReset();
         } catch (e) {
             this.password_reset_pin = undefined;

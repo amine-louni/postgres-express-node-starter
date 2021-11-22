@@ -8,7 +8,7 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
-import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, NOT_FOUND, SECRET_USER_FIELDS, SERVER_ERROR, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
+import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, NOT_FOUND, PASSWORD_RESET_PIN_EXPIRED, SECRET_USER_FIELDS, SERVER_ERROR, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
 
@@ -150,7 +150,7 @@ export const validateEmail = cathAsync(async (req, res, next) => {
     const theUser = await User.findOne({ user_name });
 
 
-    // 5 )  Check if the user is not email validated yet
+    // 3)  Check if the user is not email validated yet
 
     if (theUser?.email_validate_at) {
         return next(new AppError('wrong validation pin', 422, EMAIL_ALREADY_VALIDATED));
@@ -206,6 +206,67 @@ export const forgotPassword = cathAsync(async (req, res, next) => {
     res.status(201).json({
         status: 'success',
         message: `email sent to ${theUser.email}`
+    })
+
+
+
+
+});
+
+
+export const resetPassword = cathAsync(async (req, res, next) => {
+    // 1) Get user based on POSTed email
+    const { pin, email, password } = req.body;
+
+    // 2 ) Check if email & password inputs exists
+    if (!pin || !email || !password) {
+        return next(new AppError('pin and email are required', 422, BAD_INPUT));
+    }
+
+
+    const theUser = await User.findOne({
+        select: [...ALLOWED_USER_FIELDS, 'password_reset_pin', 'password_reset_pin_expires_at'],
+        where: {
+            email
+        },
+    });
+
+    if (!theUser) {
+        return next(new AppError('user not found', 404, NOT_FOUND));
+    }
+    console.log(theUser)
+    // 3)  Check if the user is not email validated yet
+    console.log(theUser.password_reset_pin, 'pass pin')
+    if (!theUser?.password_reset_pin) {
+        return next(new AppError('this user didn\'t requests to reset the password', 422, BAD_INPUT));
+    }
+
+    // 4 ) Check the correctness
+    if (!theUser || !theUser?.password_reset_pin || !(await crypt.compare(pin, theUser?.password_reset_pin))) {
+        return next(new AppError('wrong validation pin', 422, BAD_INPUT));
+
+    }
+
+
+    // 4 ) Check if the pin still valid ⏲️
+
+    if (theUser.password_reset_pin_expires_at && new Date() > theUser.password_reset_pin_expires_at) {
+        return next(new AppError('validation key expired', 422, PASSWORD_RESET_PIN_EXPIRED));
+    }
+
+    const hashed_password = await crypt.hash(password!, 12);
+
+    const updatedUser = User.update(theUser.uuid, {
+        password: hashed_password,
+        password_reset_pin: undefined,
+        password_reset_pin_expires_at: undefined,
+        password_changed_at: new Date()
+
+    })
+
+
+    res.status(201).json({
+        user: updatedUser
     })
 
 

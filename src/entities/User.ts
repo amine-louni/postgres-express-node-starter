@@ -20,8 +20,9 @@ config();
 @Entity('users')
 export class User extends BaseEntity {
 
-    @AfterInsert()
+    @BeforeInsert()
     async on_register() {
+
         this.password = await crypt.hash(this.password, 12);
         const pin = crypto.randomBytes(4).toString('hex');
         this.email_validation_pin = await crypt.hash(pin, 12);

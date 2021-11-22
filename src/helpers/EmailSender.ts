@@ -2,8 +2,8 @@ import nodemailer from 'nodemailer';
 import pug from 'pug';
 import mg from 'nodemailer-mailgun-transport';
 import htmlToText from 'html-to-text';
-import { IUser } from "src/@types/user";
 import { __prod__ } from "../constatns";
+import { User } from 'src/entities/User';
 
 
 export default class EmailSender {
@@ -12,7 +12,7 @@ export default class EmailSender {
     url: string;
     from: string;
     pin?: string;
-    constructor(user: IUser, url: string, pin?: string) {
+    constructor(user: User, url: string, pin?: string) {
         this.to = user.email;
         this.firstName = user.first_name;
         this.url = url;
@@ -74,13 +74,13 @@ export default class EmailSender {
     async sendValidationEmail() {
         await this.send(
             'emailValidation',
-            'Your password reset token (valid for only 10 minutes)'
+            'Your pin for email validation (valid for only 10 minutes)'
         );
     }
     async sendPasswordReset() {
         await this.send(
             'passwordReset',
-            'Your password reset token (valid for only 10 minutes)'
+            'Reset your password (valid for only 10 minutes)'
         );
     }
 };

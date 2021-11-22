@@ -19,6 +19,7 @@ export interface IUser {
     profile_picture_url: string;
     email_validation_pin: string | undefined;
     email_validation_pin_expires_at: Date | undefined;
+    password_reset_pin_expires_at: Date | undefined;
 
 }
 

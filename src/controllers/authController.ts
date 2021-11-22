@@ -8,10 +8,11 @@ import { User } from '../entities/User';
 import { config } from 'dotenv'
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
-import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, SECRET_USER_FIELDS, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
+import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, NOT_FOUND, SECRET_USER_FIELDS, SERVER_ERROR, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
-import { IUser } from "src/@types/user";
+
+
 
 
 config()
@@ -29,7 +30,7 @@ const singingToken = (id: string): string => {
     );
 };
 
-const createSendToken = async (user: IUser, status: number, req: Request, res: Response) => {
+const createSendToken = async (user: User, status: number, req: Request, res: Response) => {
 
     const token = singingToken(user.uuid);
     res.cookie('jwt', token, {
@@ -42,7 +43,7 @@ const createSendToken = async (user: IUser, status: number, req: Request, res: R
 
     // remove sensetive data
     SECRET_USER_FIELDS.forEach((secretField) => {
-        user[secretField] = undefined;
+        if (user[secretField] || user[secretField] === null) user[secretField] = undefined;
     })
 
 
@@ -150,14 +151,13 @@ export const validateEmail = cathAsync(async (req, res, next) => {
 
 
     // 5 )  Check if the user is not email validated yet
-    console.log(theUser)
-    console.log(theUser?.email_validate_at)
+
     if (theUser?.email_validate_at) {
         return next(new AppError('wrong validation pin', 422, EMAIL_ALREADY_VALIDATED));
     }
 
     // 4 ) Check the correctness
-    if (!theUser || !(await crypt.compare(pin, theUser?.email_validation_pin))) {
+    if (!theUser || !theUser?.email_validation_pin || !(await crypt.compare(pin, theUser?.email_validation_pin))) {
         return next(new AppError('wrong validation pin', 422, BAD_INPUT));
 
     }
@@ -165,10 +165,8 @@ export const validateEmail = cathAsync(async (req, res, next) => {
 
     // 4 ) Check if the pin still valid ⏲️
 
-    if (new Date() > theUser.email_validation_pin_expires_at) {
-        console.log('passed')
+    if (theUser.email_validation_pin_expires_at && new Date() > theUser.email_validation_pin_expires_at) {
         return next(new AppError('validation key expired', 422, VALIDATION_EMAIL_PIN_EXPIRED));
-
     }
 
     // return res.json({
@@ -189,3 +187,28 @@ export const validateEmail = cathAsync(async (req, res, next) => {
     })
 
 })
+
+
+
+export const forgotPassword = cathAsync(async (req, res, next) => {
+    // 1) Get user based on POSTed email
+    const theUser = await User.findOne({ email: req.body.email });
+    if (!theUser) {
+        return next(new AppError('user not found', 404, NOT_FOUND));
+    }
+
+    // 2) Generate the random reset token
+    await theUser.createAndSendPasswordResetPin().catch((e) => {
+        return next(new AppError(`There was an error sending the email : ${e}`, 500, SERVER_ERROR))
+    });
+
+
+    res.status(201).json({
+        status: 'success',
+        message: `email sent to ${theUser.email}`
+    })
+
+
+
+
+});

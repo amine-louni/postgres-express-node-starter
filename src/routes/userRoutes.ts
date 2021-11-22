@@ -1,6 +1,6 @@
 
 import express, { Router } from 'express';
-import { login, register, validateEmail } from '../controllers/authController'
+import { forgotPassword, login, register, validateEmail } from '../controllers/authController'
 import { getUser } from '../controllers/userController';
 
 
@@ -9,9 +9,10 @@ const router: Router = express.Router();
 
 
 // Auth 🔐
-router.post('/register', register);
-router.post('/login', login);
-router.patch('/validate-email', validateEmail);
+router.post('/auth/register', register);
+router.post('/auth/login', login);
+router.patch('/auth/validate-email', validateEmail);
+router.patch('/auth/forgot-password', forgotPassword);
 
 
 // User data

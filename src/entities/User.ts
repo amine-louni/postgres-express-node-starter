@@ -1,9 +1,9 @@
 import { IsEmail, Length } from "class-validator";
-import { AfterInsert, BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import crypt from "bcryptjs";
 import crypto from "crypto";
 import { config } from 'dotenv'
-import { EMAIL_VALIDATION_EXPIRATION_IN_MINUTES } from "../constatns";
+import { PASSWORD_PIN_EXPIRATION_IN_MINUTES, EMAIL_PIN_EXPIRATION_IN_MINUTES } from "../constatns";
 import EmailSender from "../helpers/EmailSender";
 
 
@@ -23,10 +23,10 @@ export class User extends BaseEntity {
     @BeforeInsert()
     async on_register() {
 
-        this.password = await crypt.hash(this.password, 12);
+        this.password = await crypt.hash(this.password!, 12);
         const pin = crypto.randomBytes(4).toString('hex');
         this.email_validation_pin = await crypt.hash(pin, 12);
-        this.email_validation_pin_expires_at = await new Date(new Date().getTime() + EMAIL_VALIDATION_EXPIRATION_IN_MINUTES * 60000);
+        this.email_validation_pin_expires_at = await new Date(new Date().getTime() + EMAIL_PIN_EXPIRATION_IN_MINUTES * 60000);
         new EmailSender(this, '', pin).sendValidationEmail();
     }
 
@@ -61,27 +61,28 @@ export class User extends BaseEntity {
         type: 'timestamptz',
         nullable: true
     })
-    email_validate_at: Date;
+    email_validate_at: Date | undefined;
 
 
     @Column({
         type: 'varchar',
         select: false
     })
-    password: string;
+    password: string | undefined;
+
     @Column({
         type: 'varchar',
         nullable: true,
         select: false
     })
-    email_validation_pin: string;
+    email_validation_pin: string | undefined;
 
     @Column({
         type: 'timestamptz',
         nullable: true,
         select: false,
     })
-    email_validation_pin_expires_at: Date;
+    email_validation_pin_expires_at: Date | undefined;
 
     @Column({
         type: 'varchar',
@@ -109,7 +110,7 @@ export class User extends BaseEntity {
         type: 'timestamptz',
         nullable: true,
     })
-    id_verified_at: Date;
+    id_verified_at: Date | undefined;
 
 
     @Column({
@@ -127,7 +128,7 @@ export class User extends BaseEntity {
         nullable: true,
         select: false
     })
-    password_changed_at: Date;
+    password_changed_at: Date | undefined;
 
 
     @Column({
@@ -135,14 +136,21 @@ export class User extends BaseEntity {
         nullable: true,
         select: false
     })
-    password_reset_token: string;
+    password_reset_token: string | undefined;
 
     @Column({
         type: 'varchar',
         nullable: true,
         select: false
     })
-    password_reset_pin: string;
+    password_reset_pin: string | undefined;
+
+    @Column({
+        type: 'timestamptz',
+        nullable: true,
+        select: false,
+    })
+    password_reset_pin_expires_at: Date | undefined
 
 
 
@@ -152,6 +160,20 @@ export class User extends BaseEntity {
 
     @UpdateDateColumn({ select: false })
     updated_at: Date;
+
+
+    // Helpers 
+    public async createAndSendPasswordResetPin() {
+        try {
+            const pin = crypto.randomBytes(4).toString('hex');
+            this.password_reset_pin = await crypt.hash(pin, 12);
+            this.password_reset_pin_expires_at = await new Date(new Date().getTime() + PASSWORD_PIN_EXPIRATION_IN_MINUTES * 60000);
+            new EmailSender(this, '', pin).sendPasswordReset();
+        } catch (e) {
+            this.password_reset_pin = undefined;
+            this.password_reset_pin_expires_at = undefined;
+        }
+    }
 
 
 

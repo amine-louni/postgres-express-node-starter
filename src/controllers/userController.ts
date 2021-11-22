@@ -15,7 +15,7 @@ export const getUser = cathAsync(async (req, res, next) => {
     const theUser = await User.findOne({ uuid: uuid });
     console.log(theUser, 'the user')
     if (!theUser) {
-        return next(new AppError('use not found', 404, NOT_FOUND));
+        return next(new AppError('user not found', 404, NOT_FOUND));
     }
 
 

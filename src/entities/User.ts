@@ -61,28 +61,28 @@ export class User extends BaseEntity {
         type: 'timestamptz',
         nullable: true
     })
-    email_validate_at: Date | undefined;
+    email_validate_at: Date | null;
 
 
     @Column({
         type: 'varchar',
         select: false
     })
-    password: string | undefined;
+    password: string;
 
     @Column({
         type: 'varchar',
         nullable: true,
         select: false
     })
-    email_validation_pin: string | undefined;
+    email_validation_pin: string | null;
 
     @Column({
         type: 'timestamptz',
         nullable: true,
         select: false,
     })
-    email_validation_pin_expires_at: Date | undefined;
+    email_validation_pin_expires_at: Date | null;
 
     @Column({
         type: 'varchar',
@@ -110,7 +110,7 @@ export class User extends BaseEntity {
         type: 'timestamptz',
         nullable: true,
     })
-    id_verified_at: Date | undefined;
+    id_verified_at: Date | null;
 
 
     @Column({
@@ -128,7 +128,7 @@ export class User extends BaseEntity {
         nullable: true,
         select: false
     })
-    password_changed_at: Date | undefined;
+    password_changed_at: Date | null;
 
 
     @Column({
@@ -136,21 +136,21 @@ export class User extends BaseEntity {
         nullable: true,
         select: false
     })
-    password_reset_token: string | undefined;
+    password_reset_token: string | null;
 
     @Column({
         type: 'varchar',
         nullable: true,
         select: false
     })
-    password_reset_pin: string | undefined;
+    password_reset_pin: string | null;
 
     @Column({
         type: 'timestamptz',
         nullable: true,
         select: false,
     })
-    password_reset_pin_expires_at: Date | undefined
+    password_reset_pin_expires_at: Date | null
 
 
 
@@ -171,8 +171,8 @@ export class User extends BaseEntity {
             this.save();
             new EmailSender(this, '', pin).sendPasswordReset();
         } catch (e) {
-            this.password_reset_pin = undefined;
-            this.password_reset_pin_expires_at = undefined;
+            this.password_reset_pin = null;
+            this.password_reset_pin_expires_at = null;
         }
     }
 

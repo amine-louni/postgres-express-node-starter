@@ -46,7 +46,7 @@ const createSendToken = async (user: User, status: number, req: Request, res: Re
 
     // remove sensetive data
     SECRET_USER_FIELDS.forEach((secretField) => {
-        if (user[secretField] || user[secretField] === null) user[secretField] = undefined;
+        delete user[secretField]
     })
 
 
@@ -125,8 +125,6 @@ export const login = cathAsync(async (req, res, next) => {
         where: {
             ...(user_name && { user_name: user_name }),
             ...(email && { email: email }),
-
-
         },
 
 
@@ -280,6 +278,38 @@ export const resetPassword = cathAsync(async (req, res, next) => {
 
 });
 
+export const updatePassword = cathAsync(async (req, res, next) => {
+
+    const { password, current_password } = req.body;
+
+    // 1) Get user from collection
+    const theUser = await User.findOne({
+        select: [...ALLOWED_USER_FIELDS, 'password'],
+        where: {
+            uuid: req.currentUser?.uuid
+        }
+    })
+
+    // 2) Check if POSTed current password is correct
+    if (!theUser || !(await crypt.compare(current_password, theUser?.password))) {
+        return next(new AppError('wrong login credeintials', 401, BAD_AUTH));
+    }
+    console.log(password, '"-" ', current_password)
+    // 3) If so, update password
+
+    await User.update({ uuid: theUser.uuid }, {
+        password: await crypt.hash(password!, 12),
+
+    }).catch((e) => next(new AppError(`error while updating the password ${e}`, 500, SERVER_ERROR)))
+
+    const updatedUser = await User.findOne({ uuid: theUser.uuid });
+
+    //  4) Log user in, send JWT
+    if (updatedUser) createSendToken(updatedUser, 200, req, res);
+
+
+})
+
 export const protect = cathAsync(async (req, _res, next) => {
     // 1) Getting token and check of it's there
     let token;
@@ -315,7 +345,7 @@ export const protect = cathAsync(async (req, _res, next) => {
     }
 
     // 4) Check if user changed password after the token was issued
-    if (changedPasswordAfter(decoded.iat, currentUser.password_changed_at)) {
+    if (currentUser.password_changed_at && changedPasswordAfter(decoded.iat, currentUser.password_changed_at)) {
         return next(
             new AppError('user recently changed password! Please log in again.', 401, BAD_AUTH)
         );

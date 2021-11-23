@@ -1,9 +1,10 @@
 import 'express';
-import { IUser } from './user';
+import { User } from 'src/entities/User';
+
 
 declare module 'express' {
     interface Request {
-        currentUser?: IUser;
+        currentUser?: User;
         requestedTime?: string;
     }
 }

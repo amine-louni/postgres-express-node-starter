@@ -3,8 +3,8 @@
 import { cathAsync } from '../helpers/catchAsync';
 import { User } from '../entities/User';
 import AppError from '../helpers/AppError';
-import { ALLOWED_USER_FIELDS_TO_UPDATE, FORBIDDEN_USER_FIELDS_TO_UPDATE, NOT_FOUND } from '../constatns';
-import { getRepository } from 'typeorm';
+import { ALLOWED_USER_FIELDS_TO_UPDATE, NOT_FOUND } from '../constatns';
+
 
 
 
@@ -40,7 +40,7 @@ export const getUser = cathAsync(async (req, res, next) => {
 
 export const updateMe = cathAsync(async (req, res, next) => {
     const { body } = req;
-    const userRepository = getRepository(User);
+
     // 1) Create error if user POSTs password data
     if (req.body.password) {
         return next(

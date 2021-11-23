@@ -56,6 +56,9 @@ export const ALLOWED_USER_FIELDS_TO_UPDATE = [
     'profile_picture_url',
 ] as const;
 
+
+export const passwordRegExValidator = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
 // code erros
 export const BAD_AUTH = 'bad_auth';
 export const BAD_INPUT = 'bad_input';

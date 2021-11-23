@@ -1,6 +1,6 @@
 
 import express, { Router } from 'express';
-import { updatePasswordValidator, userLoginValidator, userRegisterValidator, userValidateEmailValidator } from '../middlewares/validators/authValidators';
+import { updatePasswordValidator, userForgotPassword, userLoginValidator, userRegisterValidator, userResetPassword, userValidateEmailValidator } from '../middlewares/validators/authValidators';
 import { forgotPassword, login, protect, register, resetPassword, updatePassword, validateEmail } from '../controllers/authController'
 import { getUser, updateMe } from '../controllers/userController';
 
@@ -13,8 +13,8 @@ const router: Router = express.Router();
 router.post('/auth/register', userRegisterValidator, register);
 router.post('/auth/login', userLoginValidator, login);
 router.patch('/auth/validate-email', protect, userValidateEmailValidator, validateEmail);
-router.patch('/auth/forgot-password', forgotPassword);
-router.patch('/auth/reset-password', resetPassword);
+router.patch('/auth/forgot-password', userForgotPassword, forgotPassword);
+router.patch('/auth/reset-password', userResetPassword, resetPassword);
 router.patch('/auth/update-password', updatePasswordValidator, protect, updatePassword)
 
 

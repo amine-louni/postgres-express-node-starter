@@ -201,11 +201,6 @@ export const resetPassword = cathAsync(async (req, res, next) => {
     // 1) Get user based on POSTed email
     const { pin, email, password } = req.body;
 
-    // 2 ) Check if email & password inputs exists
-    if (!pin || !email || !password) {
-        return next(new AppError('pin and email are required', 422, BAD_INPUT));
-    }
-
 
     const theUser = await User.findOne({
         select: [...ALLOWED_USER_FIELDS, 'password_reset_pin', 'password_reset_pin_expires_at'],
@@ -217,14 +212,14 @@ export const resetPassword = cathAsync(async (req, res, next) => {
     if (!theUser) {
         return next(new AppError('user not found', 404, NOT_FOUND));
     }
-    console.log(theUser)
-    // 3)  Check if the user is not email validated yet
+
+    // 2)  Check if the user is not email validated yet
     console.log(theUser.password_reset_pin, 'pass pin')
     if (!theUser?.password_reset_pin) {
         return next(new AppError('this user didn\'t requests to reset the password', 422, BAD_INPUT));
     }
 
-    // 4 ) Check the correctness
+    // 3 ) Check the correctness
     if (!theUser || !theUser?.password_reset_pin || !(await crypt.compare(pin, theUser?.password_reset_pin))) {
         return next(new AppError('wrong validation pin', 422, BAD_INPUT));
 

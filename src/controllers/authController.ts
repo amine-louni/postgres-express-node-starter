@@ -98,12 +98,6 @@ export const register = cathAsync(async (req, res, next) => {
 export const login = cathAsync(async (req, res, next) => {
     const { email, password, user_name } = req.body;
 
-    // 1 ) Check if email & password inputs exists
-
-    if (!password || !(email || user_name)) {
-        return next(new AppError('wrong login credeintials', 400, BAD_AUTH));
-    }
-
     // 2 ) Check if user & password exits
 
     const theUser = await User.findOne({
@@ -128,18 +122,17 @@ export const login = cathAsync(async (req, res, next) => {
 
 
 export const validateEmail = cathAsync(async (req, res, next) => {
-    const { pin, user_name } = req.body;
-
-
-    // 1 ) Check if email & password inputs exists
-    if (!pin || !user_name) {
-        return next(new AppError('wrong validation pin', 422, BAD_INPUT));
-    }
-
+    const { pin } = req.body;
 
     // 2 ) Check if user exits
-    const theUser = await User.findOne({ user_name });
+    const theUser = await User.findOne({
+        select: [...ALLOWED_USER_FIELDS, 'password', 'email_validation_pin', 'email_validation_pin_expires_at'],
+        where: {
+            uuid: req.currentUser?.uuid
+        },
 
+
+    });
 
     // 3)  Check if the user is not email validated yet
 
@@ -303,7 +296,9 @@ export const protect = cathAsync(async (req, _res, next) => {
         req.headers.authorization &&
         req.headers.authorization.startsWith('Bearer')
     ) {
+        console.log(req.headers.authorization, 'token auth')
         token = req.headers.authorization.split(' ')[1];
+
     } else if (req.cookies.jwt) {
         token = req.cookies.jwt;
     }

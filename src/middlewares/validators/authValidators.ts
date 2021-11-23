@@ -1,4 +1,4 @@
-import { body, check, oneOf, validationResult } from 'express-validator';
+import { body, check, validationResult } from 'express-validator';
 
 import { Request, Response, NextFunction } from 'express'
 import AppError from '../../helpers/AppError';
@@ -167,6 +167,32 @@ export const updatePasswordValidator = [
         .matches(passwordRegExValidator)
         .withMessage('Minimum eight characters, at least one letter and one number')
         .bail(),
+    (req: Request, _res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty())
+
+            return next(new AppError('validation  error', 422, VALIDATION_FAILED, errors.array()))
+        return next()
+
+    },
+];
+
+
+export const userValidateEmailValidator = [
+    check('pin')
+        .trim()
+        .escape()
+        .not()
+        .isEmpty()
+        .withMessage('pin can not be empty!')
+        .bail()
+        .isAlphanumeric()
+        .withMessage('pin must contain alphabets and numbers only')
+        .bail()
+        .isLength({ max: 8, min: 8 })
+        .withMessage('Pin must be 8 characters!')
+        .bail(),
+
     (req: Request, _res: Response, next: NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty())

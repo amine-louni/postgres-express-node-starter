@@ -7,21 +7,13 @@ import jwt_decode from "jwt-decode";
 import { cathAsync } from '../helpers/catchAsync';
 import { User } from '../entities/User';
 
-import { config } from 'dotenv'
+
 import crypt from 'bcryptjs'
 import AppError from "../helpers/AppError";
 import { ALLOWED_USER_FIELDS, BAD_AUTH, BAD_INPUT, EMAIL_ALREADY_VALIDATED, NOT_FOUND, PASSWORD_RESET_PIN_EXPIRED, SECRET_USER_FIELDS, SERVER_ERROR, VALIDATION_EMAIL_PIN_EXPIRED, VALIDATION_FAILED } from "../constatns";
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
 import changedPasswordAfter from "../helpers/changedPasswordAfter";
-
-
-
-
-config()
-
-
-
 
 const singingToken = (id: string): string => {
     return jwt.sign(
@@ -59,10 +51,6 @@ const createSendToken = async (user: User, status: number, req: Request, res: Re
     });
 };
 
-
-
-
-
 // @ Todo
 // Send verification email 
 export const register = cathAsync(async (req, res, next) => {
@@ -85,8 +73,6 @@ export const register = cathAsync(async (req, res, next) => {
         email,
         dob,
         password
-
-
     })
 
     const errors = await validate(newUser);

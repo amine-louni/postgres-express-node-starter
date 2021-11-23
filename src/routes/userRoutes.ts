@@ -1,6 +1,6 @@
 
 import express, { Router } from 'express';
-import { updatePasswordValidator, userRegisterValidator } from '../middlewares/validators/authValidators';
+import { updatePasswordValidator, userLoginValidator, userRegisterValidator } from '../middlewares/validators/authValidators';
 import { forgotPassword, login, protect, register, resetPassword, updatePassword, validateEmail } from '../controllers/authController'
 import { getUser, updateMe } from '../controllers/userController';
 
@@ -11,7 +11,7 @@ const router: Router = express.Router();
 
 // Auth 🔐
 router.post('/auth/register', userRegisterValidator, register);
-router.post('/auth/login', login);
+router.post('/auth/login', userLoginValidator, login);
 router.patch('/auth/validate-email', validateEmail);
 router.patch('/auth/forgot-password', forgotPassword);
 router.patch('/auth/reset-password', resetPassword);

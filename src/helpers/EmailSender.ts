@@ -70,7 +70,7 @@ export default class EmailSender {
   }
 
   async sendWelcome() {
-    await this.send("welcome", "Welcome to the LiYelp Family!");
+    await this.send("welcome", "Welcome to the PERN stack starter Family!");
   }
   async sendValidationEmail() {
     await this.send(

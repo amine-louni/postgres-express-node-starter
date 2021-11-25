@@ -1,8 +1,0 @@
-postgres:
-  image: postgres:11.5-alpine
-  ports:
-    - "5432:5432"
-  environment:
-    POSTGRES_USER: db
-    POSTGRES_PASSWORD: db
-    POSTGRES_DB: liyelp_db

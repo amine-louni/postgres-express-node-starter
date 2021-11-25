@@ -9,7 +9,7 @@ databaseConnection();
 // Listening for requests 👂
 const PORT = process.env.PORT || 4000;
 const server = app.listen(PORT, () => {
-  if (!__prod__) console.log(`up & running 🏃 on port:  => ${PORT}`);
+  if (!__prod__) console.log(`up & running 🏃 on port : ${PORT}`);
 });
 
 process.once("SIGUSR2", function () {

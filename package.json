@@ -10,9 +10,12 @@
     "watch:js": "nodemon dist/index.js",
     "watch:all": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch:ts\" \"npm run watch:js\"",
     "watch:test": "npm run test -- --watchAll",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@types/jest": "^27.0.3",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
@@ -22,6 +25,7 @@
     "helmet": "^4.6.0",
     "html-to-text": "^8.1.0",
     "i": "^0.3.7",
+    "jest": "^27.3.1",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
     "mailgun.js": "^3.7.3",
@@ -51,6 +55,7 @@
     "form-data": "^4.0.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.4.1",
+    "ts-jest": "^27.0.7",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   }

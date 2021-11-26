@@ -23,6 +23,12 @@ import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
 import changedPasswordAfter from "../helpers/changedPasswordAfter";
 
+export const filterobj = (objToFilter: any, itemsToFilterOut: string[]) => {
+  itemsToFilterOut.forEach((secretField) => {
+    delete objToFilter[secretField];
+  });
+};
+
 const singingToken = (id: string): string => {
   return jwt.sign(
     {
@@ -49,9 +55,7 @@ const createSendToken = async (
   });
 
   // remove sensetive data
-  SECRET_USER_FIELDS.forEach((secretField) => {
-    delete user[secretField];
-  });
+  filterobj(user, [...SECRET_USER_FIELDS]);
 
   res.status(status).json({
     status: "success",

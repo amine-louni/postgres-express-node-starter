@@ -1,8 +1,8 @@
 version: "3.9"
 services:
   app:
-    container_name: app-dev
-    image: app-dev
+    container_name: pen-dev
+    image: pen-dev
     build:
       context: ./
       target: development

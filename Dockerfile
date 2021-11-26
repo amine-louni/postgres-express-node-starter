@@ -18,7 +18,7 @@ USER node
 
 # Expose Port
 EXPOSE 4000
-CMD ["yarn", "watch"]
+CMD ["yarn", "watch:all"]
 
 
 

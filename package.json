@@ -5,18 +5,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "npm run serve",
-    "build": "npm run build-ts",
-    "serve": "node --harmony-top-level-await dist/index.js",
-    "watch-node": "nodemon dist/index.js",
-    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
-    "watch-test": "npm run test -- --watchAll",
-    "build-ts": "tsc",
-    "watch-ts": "tsc -w",
-    "debug": "npm run build && npm run watch-debug",
-    "serve-debug": "nodemon --inspect dist/index.js",
-    "test": "NODE_ENV=test jest --detectOpenHandles --verbose",
-    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
+    "start": "node ./dist/index.js",
+    "watch:ts": "tsc -w",
+    "watch:js": "nodemon dist/index.js",
+    "watch:all": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch:ts\" \"npm run watch:js\"",
+    "watch:test": "npm run test -- --watchAll",
+    "build": "tsc"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

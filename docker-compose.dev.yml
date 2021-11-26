@@ -1,8 +1,8 @@
 version: "3.9"
 services:
   app:
-    container_name: pen-dev
-    image: pen-dev
+    container_name: pen-dev-server
+    image: pen-dev-server
     build:
       context: ./
       target: development
@@ -16,7 +16,7 @@ services:
 
     command:
       - yarn
-      - watch
+      - watch:all
     depends_on:
       - db
   db:

@@ -2,7 +2,7 @@ version: "3.9"
 services:
   app:
     container_name: pen-dev-server
-    image: pen-dev-server
+
     build:
       context: ./
       target: development

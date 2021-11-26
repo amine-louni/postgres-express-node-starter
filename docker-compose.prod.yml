@@ -2,7 +2,6 @@ version: "3.9"
 services:
   app:
     container_name: pen-prod-server
-    image: pen-prod-server
     build:
       context: ./
       target: production

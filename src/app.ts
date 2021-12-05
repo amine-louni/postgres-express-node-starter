@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import userRoutes from "./routes/userRoutes";
-import { NOT_FOUND, __prod__ } from "./constatns";
+import { NOT_FOUND, __dev__ } from "./constatns";
 import AppError from "./helpers/AppError";
 import errorController from "./controllers/errorController";
 import path from "path";
@@ -23,7 +23,7 @@ app.use(cors());
 app.use(helmet());
 
 // Development logging
-if (!__prod__) {
+if (__dev__) {
   app.use(morgan("dev"));
 }
 // Body parser, reading data from the body to req.body

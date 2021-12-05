@@ -8,12 +8,12 @@ import { User } from "../entities/User";
 
 config();
 
-export const databaseConnection = async () => {
+export const databaseConnection = async (databaseName: string) => {
   await createConnection({
     type: "postgres",
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
+    database: databaseName,
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     synchronize: !__prod__,

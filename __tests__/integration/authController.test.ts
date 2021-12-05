@@ -2,19 +2,23 @@ import { databaseClose, databasePurge } from "../../src/database/connection";
 import { databaseConnection } from "../../src/database/connection";
 import supertest from "supertest";
 import app from "../../src/app";
+import { config } from "dotenv";
+config();
 
 describe("AUTH 🗝️", () => {
   const userExample = {
-    first_name: "floki",
-    last_name: "Vilgeroarson",
+    first_name: "john",
+    last_name: "doe",
     user_name: "floki",
-    email: "del.castillo.amn@gmail.com",
+    email: "john@gmail.com",
     password: "12345678s",
     dob: "1995-10-10",
   };
 
   beforeAll(async () => {
-    await databaseConnection().catch((e) => console.error(e));
+    await databaseConnection(process.env.DB_NAME_TEST).catch((e) =>
+      console.error(e)
+    );
   });
 
   afterAll(async () => {
@@ -24,7 +28,7 @@ describe("AUTH 🗝️", () => {
   beforeEach(async () => {
     await databasePurge().catch((e) => console.error(e));
   });
-  // test user register
+
   test("USER REGISTER", async () => {
     await supertest(app)
       .post("/api/v1/users/auth/register")

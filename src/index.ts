@@ -5,7 +5,7 @@ import app from "./app";
 import AppError from "./helpers/AppError";
 
 // connect db  🔗
-databaseConnection()
+databaseConnection(process.env.DB_NAME)
   .then(() => console.log("database connected ⛓️"))
   .catch((e) =>
     console.error(new AppError(`Error while connecting to db ${e}`, 500))
@@ -14,7 +14,8 @@ databaseConnection()
 // Listening for requests 👂
 const PORT = process.env.PORT || 4000;
 const server = app.listen(PORT, () => {
-  if (!__prod__) console.log(`up & running 🏃 on port : ${PORT}`);
+  if (!__prod__)
+    console.log(`👆 & 🏃 [${process.env.NODE_ENV.toUpperCase()}] 🚪 ${PORT}`);
 });
 
 process.once("SIGUSR2", function () {

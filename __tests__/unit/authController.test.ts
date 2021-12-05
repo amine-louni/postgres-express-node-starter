@@ -1,4 +1,4 @@
-import { filterobj } from "./../src/controllers/authController";
+import { filterobj } from "../../src/controllers/authController";
 
 describe("auth controller utlities", () => {
   it("should delete object props (1st arg) given in the array as 2nd arg", () => {

@@ -2,9 +2,14 @@
 import { databaseConnection } from "./database/connection";
 import { __prod__ } from "./constatns";
 import app from "./app";
+import AppError from "./helpers/AppError";
 
 // connect db  🔗
-databaseConnection();
+databaseConnection()
+  .then(() => console.log("database connected ⛓️"))
+  .catch((e) =>
+    console.error(new AppError(`Error while connecting to db ${e}`, 500))
+  );
 
 // Listening for requests 👂
 const PORT = process.env.PORT || 4000;

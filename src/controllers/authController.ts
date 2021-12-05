@@ -66,12 +66,8 @@ const createSendToken = async (
   });
 };
 
-// @ Todo
-// Send verification email
 export const register = cathAsync(async (req, res, next) => {
   const { first_name, last_name, user_name, email, dob, password } = req.body;
-
-  // validate
 
   // create user
   const newUser = await User.create({

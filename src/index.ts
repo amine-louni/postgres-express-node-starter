@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import { databaseConnection } from "./database/connection";
-import { __prod__ } from "./constatns";
+import { __dev__, __prod__ } from "./constatns";
 import app from "./app";
 import AppError from "./helpers/AppError";
 
 // connect db  🔗
 databaseConnection(process.env.DB_NAME)
-  .then(() => console.log("database connected ⛓️"))
+  .then(() => __dev__ && console.log("database connected ⛓️"))
   .catch((e) =>
     console.error(new AppError(`Error while connecting to db ${e}`, 500))
   );
@@ -14,7 +14,7 @@ databaseConnection(process.env.DB_NAME)
 // Listening for requests 👂
 const PORT = process.env.PORT || 4000;
 const server = app.listen(PORT, () => {
-  if (!__prod__)
+  if (__dev__)
     console.log(`👆 & 🏃 [${process.env.NODE_ENV.toUpperCase()}] 🚪 ${PORT}`);
 });
 
@@ -29,9 +29,9 @@ process.on("SIGINT", function () {
 
 // Listening to unhandled rejections
 process.on("unhandledRejection", (err: { name: string; message: string }) => {
-  console.log(err.name, err.message);
+  console.error(err.name, err.message);
 
-  console.log("UNHANDLED REJECTION 💥 shutting down the server ");
+  console.error("UNHANDLED REJECTION 💥 shutting down the server ");
 
   server.close(() => {
     process.exit(1);
@@ -40,8 +40,8 @@ process.on("unhandledRejection", (err: { name: string; message: string }) => {
 
 // Listening to SIGTERM by Heroku
 process.on("SIGTERM", () => {
-  console.log("SIGTERM RECEIVED, Shutting down");
+  console.error("SIGTERM RECEIVED, Shutting down");
   server.close(() => {
-    console.log("Process terminated 👌");
+    console.info("Process terminated 👌");
   });
 });

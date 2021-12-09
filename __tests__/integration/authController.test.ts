@@ -5,10 +5,18 @@ import app from "../../src/app";
 import { config } from "dotenv";
 config();
 
-describe("AUTH 🗝️", () => {
+describe("Authenctication suit 🗝", () => {
   const userExample = {
     first_name: "john",
     last_name: "doe",
+    user_name: "floki",
+    email: "john@gmail.com",
+    password: "12345678s",
+    dob: "1995-10-10",
+  };
+
+  const userExampleInvalid = {
+    first_name: "john",
     user_name: "floki",
     email: "john@gmail.com",
     password: "12345678s",
@@ -29,7 +37,7 @@ describe("AUTH 🗝️", () => {
     await databasePurge().catch((e) => console.error(e));
   });
 
-  test("USER REGISTER", async () => {
+  test("it should register successfully", async () => {
     await supertest(app)
       .post("/api/v1/users/auth/register")
       .send(userExample)
@@ -59,7 +67,34 @@ describe("AUTH 🗝️", () => {
       });
   });
 
-  test("USER LOGIN BY EMAIL", async () => {
+
+  test("it should return 422  on register", async () => {
+    await supertest(app)
+      .post("/api/v1/users/auth/register")
+      .send(userExampleInvalid)
+      .expect(422) 
+      .then((response) => {
+        // Check type and length
+        expect(response.body).toEqual({
+          statusCode: 422,
+          status: "fail",
+          isOperational: true,
+          code: "validation_failed",
+          errors: [
+              {
+                  value: "",
+                  msg: "last_name can not be empty!",
+                  param: "last_name",
+                  location: "body"
+              }
+          ],
+          stack: "Error: validation  error"  
+
+        });
+      });
+  });
+
+  test("it should login successfully", async () => {
     await supertest(app)
       .post("/api/v1/users/auth/register")
       .send(userExample)

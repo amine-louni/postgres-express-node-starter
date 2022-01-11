@@ -1,7 +1,7 @@
 
 import express, { Router } from 'express';
-import { updatePasswordValidator, userForgotPassword, userLoginValidator, userRegisterValidator, userResetPassword, userValidateEmailValidator } from '../middlewares/validators/authValidators';
-import { forgotPassword, login, protect, register, resetPassword, updatePassword, validateEmail } from '../controllers/authController'
+import { updateEmailValidator, updatePasswordValidator, userForgotPassword, userLoginValidator, userRegisterValidator, userResetPassword, userValidateEmailValidator } from '../middlewares/validators/authValidators';
+import { forgotPassword, login, protect, register, resetPassword, updateEmail, updatePassword, validateEmail } from '../controllers/authController'
 import { getUser, updateMe } from '../controllers/userController';
 
 
@@ -16,6 +16,7 @@ router.patch('/auth/validate-email', protect, userValidateEmailValidator, valida
 router.patch('/auth/forgot-password', userForgotPassword, forgotPassword);
 router.patch('/auth/reset-password', userResetPassword, resetPassword);
 router.patch('/auth/update-password', updatePasswordValidator, protect, updatePassword)
+router.patch('/auth/update-email', updateEmailValidator, protect, updateEmail)
 
 
 // User data

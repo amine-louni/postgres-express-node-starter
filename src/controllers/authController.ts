@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import jwt_decode from "jwt-decode";
+import crypto from "crypto";
 
 import { cathAsync } from "../helpers/catchAsync";
 import { User } from "../entities/User";
@@ -12,6 +13,7 @@ import {
   BAD_AUTH,
   BAD_INPUT,
   EMAIL_ALREADY_VALIDATED,
+  EMAIL_PIN_EXPIRATION_IN_MINUTES,
   NOT_FOUND,
   PASSWORD_RESET_PIN_EXPIRED,
   SECRET_USER_FIELDS,
@@ -22,6 +24,7 @@ import {
 import { validate } from "class-validator";
 import formatValidationErrors from "../helpers/formatValidationErrors";
 import changedPasswordAfter from "../helpers/changedPasswordAfter";
+import EmailSender from "../helpers/EmailSender";
 
 export const filterobj = (objToFilter: any, itemsToFilterOut: string[]) => {
   itemsToFilterOut.forEach((secretField) => {
@@ -301,6 +304,55 @@ export const updatePassword = cathAsync(async (req, res, next) => {
 
   //  4) Log user in, send JWT
   if (updatedUser) createSendToken(updatedUser, 200, req, res);
+});
+
+export const updateEmail = cathAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  // 1) Get user from collection
+  const theUser = await User.findOne({
+    select: [...ALLOWED_USER_FIELDS, "password"],
+    where: {
+      uuid: req.currentUser?.uuid,
+    },
+  });
+
+  // 2) Check if POSTed current password is correct
+  if (!theUser) {
+    return next(new AppError("wrong login credeintials", 401, BAD_AUTH));
+  }
+
+  // 3) update the user  and make validate email to null
+
+  await User.update(
+    { uuid: theUser.uuid },
+    {
+      email,
+      email_validate_at: null
+    }
+  ).catch((e) =>
+    next(
+      new AppError(`error while updating the password ${e}`, 500, SERVER_ERROR)
+    )
+  );
+
+
+  // 4) send validation email
+  const pin = crypto.randomBytes(4).toString("hex");
+  theUser.email_validation_pin = await crypt.hash(pin, 12);
+  theUser.email_validation_pin_expires_at = await new Date(
+    new Date().getTime() + EMAIL_PIN_EXPIRATION_IN_MINUTES * 60000
+  );
+  new EmailSender(theUser, "", pin).sendValidationChangedEmail();
+
+  const updatedUser = await User.findOne({ uuid: theUser.uuid });
+
+  // 5) Ok !
+  return res.json({
+    status: "success",
+    user: updatedUser,
+  });
+
 });
 
 export const protect = cathAsync(async (req, _res, next) => {

@@ -187,6 +187,32 @@ export const updatePasswordValidator = [
     return next();
   },
 ];
+export const updateEmailValidator = [
+
+  check("email")
+    .trim()
+    .escape()
+    .not()
+    .isEmpty()
+    .withMessage("email can not be empty!")
+    .bail()
+    .isEmail()
+    .withMessage("invalid email format")
+    .bail(),
+  (req: Request, _res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return next(
+        new AppError(
+          "validation  error",
+          422,
+          VALIDATION_FAILED,
+          errors.array()
+        )
+      );
+    return next();
+  },
+];
 
 export const userValidateEmailValidator = [
   check("pin")

@@ -84,4 +84,10 @@ export default class EmailSender {
       "Reset your password (valid for only 10 minutes)"
     );
   }
+  async sendValidationChangedEmail() {
+    await this.send(
+      "changeEmail",
+      "Your pin for email validation (valid for only 10 minutes)"
+    );
+  }
 }

@@ -1,0 +1,17 @@
+extends baseEmail
+
+block content
+  p Hi #{firstName},
+  p You are receiving this email to validate your changed email
+  p You can validate your account useing the pin below (valid for 10 min)
+  table.btn.btn-primary(role='presentation' border='0' cellpadding='0' cellspacing='0')
+    tbody
+      tr
+        td(align='left')
+          table(role='presentation' border='0' cellpadding='0' cellspacing='0')
+            tbody
+              tr
+                td
+                  span.pin #{pin}
+  p If you need any help with adding your buisness, please don't hesitate to contact me!
+  p - PERN stack starter support
